@@ -1,0 +1,14 @@
+logging:
+  level:
+    org.springframework.web: INFO
+    com.github.binarywang.demo.wx.mp: DEBUG
+    me.chanjar.weixin: DEBUG
+wx:
+  mp:
+    configs:
+      - appId: ${OPENSHIFT_APP_ID}
+        secret: ${OPENSHIFT_WECHAT_SECRET}
+        token: ${OPENSHIFT_WECHAT_TOKEN}
+        aesKey: ${OPENSHIFT_WECHAT_AESKEY}
+
+        
