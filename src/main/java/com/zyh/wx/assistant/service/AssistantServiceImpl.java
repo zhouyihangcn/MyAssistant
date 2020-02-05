@@ -1,5 +1,6 @@
 package com.zyh.wx.assistant.service;
 
+import java.text.DateFormat;
 import java.util.Date;
 
 import org.springframework.stereotype.Service;
@@ -20,13 +21,27 @@ public class AssistantServiceImpl implements AssistantService {
 	@Override
 	public MessageStore saveMessage(String user, Date createTime, String content) {
 		log.info("\nsave message：[{}, {}, {}, {}]", user, createTime, content);
-		MessageStore messageStore = new MessageStore(user,createTime,content);
+		java.sql.Date sqlCreateDate = new java.sql.Date(createTime.getTime());
+		java.sql.Time sqlCreateTime = new java.sql.Time(createTime.getTime());
+		MessageStore messageStore = new MessageStore(user, sqlCreateDate, sqlCreateTime,content);
 		return assistantRepository.save(messageStore);
 	}
 
 	@Override
-	public Iterable<MessageStore> findMessageByUser(String user) {
-		return assistantRepository.findByUser(user);
+	public String findMessageByUser(String user) {
+		Iterable<MessageStore> messageStores = assistantRepository.findByUser(user);
+		String result="";
+		java.sql.Date createDatePrev = null;
+		for (MessageStore m :messageStores) {
+			java.sql.Date createDateThis = m.getCreateDate();
+			if (!createDateThis.equals(createDatePrev)) {
+				result=result+"\n日期【"+m.getCreateDate()+"】的记录：\n";
+				createDatePrev=createDateThis;
+			}
+			result=result+"时间【"+m.getCreateTime()+"】内容【"+m.getContent()+"】;\n";
+		}
+		result=result+"。";
+		return result;
 	}
 
 	@Override

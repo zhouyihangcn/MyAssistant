@@ -42,7 +42,7 @@ public class WxHealthController {
     }
 
     @GetMapping("/message/get/{user}")
-    public Iterable<MessageStore> searchMessage(@PathVariable String user) {
+    public String searchMessage(@PathVariable String user) {
 		log.info("search request..." + user);
         return assistantService.findMessageByUser(user);
     }

@@ -12,7 +12,7 @@ public interface AssistantService {
 
 	MessageStore saveMessage(String fromUser, Date createTime, String content);
 
-	Iterable<MessageStore> findMessageByUser(String user);
+	String findMessageByUser(String user);
 
 	Iterable<MessageStore> findAllMessage();
 

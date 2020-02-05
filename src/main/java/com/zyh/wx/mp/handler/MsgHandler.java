@@ -69,8 +69,8 @@ public class MsgHandler extends AbstractHandler {
 
 	private String searchMessage(WxMpXmlMessage wxMessage) {
 		log.info("search all message..."+wxMessage.getFromUser());
-		String content = JsonUtils.toJson(assistantService.findMessageByUser(wxMessage.getFromUser()));
-		return "你好"+wxMessage.getFriendUserName()+"，你要查找的信息：" + content;
+		String content = assistantService.findMessageByUser(wxMessage.getFromUser());
+		return "你要查找的信息：" + content;
 	}
 
 	private String saveMessage(WxMpXmlMessage wxMessage) {
@@ -83,7 +83,7 @@ public class MsgHandler extends AbstractHandler {
 		log.info("save message..."+wxMessage.getFromUser()+","+content);
         Date createTime= new Date(wxMessage.getCreateTime());
         assistantService.saveMessage(wxMessage.getFromUser(), createTime, content);
-        return "你好"+wxMessage.getFriendUserName()+"，收到信息内容（已存储）：" + content;
+        return "信息已存储：" + content;
 	}
 
 
