@@ -1,11 +1,13 @@
 package com.zyh.wx.assistant.service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
-
 import org.springframework.stereotype.Service;
-
 import com.zyh.wx.assistant.entity.MessageStore;
 import com.zyh.wx.assistant.repository.MessageStoreRepository;
+import com.zyh.wx.assistant.util.Constant;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +22,9 @@ public class AssistantServiceImpl implements AssistantService {
 	@Override
 	public MessageStore saveMessage(String user, Date createTime, String content) {
 		log.info("\nsave message：[{}, {}, {}, {}]", user, createTime, content);
-		java.sql.Date sqlCreateDate = new java.sql.Date(createTime.getTime());
-		java.sql.Time sqlCreateTime = new java.sql.Time(createTime.getTime());
+		ZoneId zoneId= ZoneId.of(Constant.ZONE_ID);
+		LocalDate sqlCreateDate = createTime.toInstant().atZone(zoneId).toLocalDate();
+		LocalTime sqlCreateTime = createTime.toInstant().atZone(zoneId).toLocalTime();
 		MessageStore messageStore = new MessageStore(user, sqlCreateDate, sqlCreateTime,content);
 		return assistantRepository.save(messageStore);
 	}
@@ -30,9 +33,9 @@ public class AssistantServiceImpl implements AssistantService {
 	public String findMessageByUser(String user) {
 		Iterable<MessageStore> messageStores = assistantRepository.findByUser(user);
 		String result="";
-		java.sql.Date createDatePrev = null;
+		LocalDate createDatePrev = null;
 		for (MessageStore m :messageStores) {
-			java.sql.Date createDateThis = m.getCreateDate();
+			LocalDate createDateThis = m.getCreateDate();
 			if (!createDateThis.equals(createDatePrev)) {
 				result=result+"\n日期【"+m.getCreateDate()+"】的记录：\n";
 				createDatePrev=createDateThis;

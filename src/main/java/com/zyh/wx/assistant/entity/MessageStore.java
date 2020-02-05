@@ -1,8 +1,7 @@
 package com.zyh.wx.assistant.entity;
 
-import java.sql.Date;
-import java.sql.Time;
-
+import java.time.LocalDate;
+import java.time.LocalTime;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -16,14 +15,14 @@ public class MessageStore {
 	@GeneratedValue
 	private Long id;
 	private String user;
-	private Date createDate;
-	private Time createTime;
+	private LocalDate createDate;
+	private LocalTime createTime;
 	private String content;
 
 	public MessageStore() {
 	}
 
-	public MessageStore(String user, Date createDate, Time createTime, String content) {
+	public MessageStore(String user, LocalDate createDate, LocalTime createTime, String content) {
 		this.user=user;
 		this.createDate = createDate;
 		this.createTime=createTime;
