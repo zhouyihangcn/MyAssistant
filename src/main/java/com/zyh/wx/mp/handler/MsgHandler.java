@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.zyh.wx.assistant.service.AssistantService;
 import me.chanjar.weixin.common.api.WxConsts;
-import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
@@ -55,7 +54,16 @@ public class MsgHandler extends AbstractHandler {
         //String content = "收到信息内容：" + JsonUtils.toJson(wxMessage);
         String response = "";
         if (StringUtils.startsWithAny(wxMessage.getContent(), "查找")) {
-        	response = searchMessage(wxMessage);
+    		log.info("search message..."+wxMessage.getContent() +";length:"+wxMessage.getContent().length());
+    		String trimContent = wxMessage.getContent().trim();
+    		int keyWordLen = "查找".length(); 
+    		int contentLen = trimContent.length();
+        	if (keyWordLen == contentLen) {
+            	response = searchMessage(wxMessage);
+        	} else {
+        		String toSearch = StringUtils.substring(wxMessage.getContent(), keyWordLen);
+        		response = searchMessageLike(wxMessage, toSearch);
+        	}
         } else {
         	response = saveMessage(wxMessage);
         }
@@ -63,6 +71,12 @@ public class MsgHandler extends AbstractHandler {
         return new TextBuilder().build(response, wxMessage, weixinService);
 
     }
+
+	private String searchMessageLike(WxMpXmlMessage wxMessage, String toSearch) {
+		log.info("search message like..."+toSearch);
+		String content = assistantService.findMessageByUserAndContentContaining(wxMessage.getFromUser(), toSearch);
+		return "你要查找的信息：" + content;
+	}
 
 	private String searchMessage(WxMpXmlMessage wxMessage) {
 		log.info("search all message..."+wxMessage.getFromUser());

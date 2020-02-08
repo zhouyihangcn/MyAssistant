@@ -1,0 +1,2 @@
+Hibernate: drop table if exists message_store;
+Hibernate: create table message_store (id bigint not null auto_increment, content varchar(255), create_date date, create_time time, user varchar(255), primary key (id));

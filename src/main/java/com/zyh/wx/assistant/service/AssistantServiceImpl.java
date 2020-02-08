@@ -32,6 +32,22 @@ public class AssistantServiceImpl implements AssistantService {
 	@Override
 	public String findMessageByUser(String user) {
 		Iterable<MessageStore> messageStores = assistantRepository.findByUser(user);
+		return formatSearchResult(messageStores);
+	}
+
+	@Override
+	public Iterable<MessageStore> findAllMessage() {
+		return assistantRepository.findAll();
+	}
+
+	@Override
+	public String findMessageByUserAndContentContaining(String user, String toSearch) {
+		Iterable<MessageStore> messageStores = assistantRepository.findByUserAndContentContaining(user, toSearch);
+		return formatSearchResult(messageStores);
+	}
+	
+
+	private String formatSearchResult(Iterable<MessageStore> messageStores) {
 		String result="";
 		LocalDate createDatePrev = null;
 		for (MessageStore m :messageStores) {
@@ -45,11 +61,5 @@ public class AssistantServiceImpl implements AssistantService {
 		result=result+"。";
 		return result;
 	}
-
-	@Override
-	public Iterable<MessageStore> findAllMessage() {
-		return assistantRepository.findAll();
-	}
-	
 
 }

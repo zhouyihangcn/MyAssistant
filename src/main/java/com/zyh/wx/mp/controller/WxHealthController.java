@@ -47,10 +47,16 @@ public class WxHealthController {
         return assistantService.findMessageByUser(user);
     }
 
-    @GetMapping("/message/post/{user}")
-    public MessageStore postMessage(@PathVariable String user) {
-		log.info("post request..." + user);
-		String content = "test posting";
+    @GetMapping("/message/get/{user}/{content}")
+    public String searchMessageLike(@PathVariable String user, @PathVariable String content) {
+		log.info("search request..." + user+";" +content);
+        return assistantService.findMessageByUserAndContentContaining(user, content);
+    }
+
+    @GetMapping("/message/post/{user}/{content}")
+    public MessageStore postMessage(@PathVariable String user, @PathVariable String content) {
+		log.info("post request..." + user+";" +content);
+//		String content = "test posting";
         Date createTime= new Date();
         return assistantService.saveMessage(user, createTime, content);
     }

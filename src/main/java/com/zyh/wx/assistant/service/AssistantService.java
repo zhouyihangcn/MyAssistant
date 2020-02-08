@@ -16,4 +16,6 @@ public interface AssistantService {
 
 	Iterable<MessageStore> findAllMessage();
 
+	String findMessageByUserAndContentContaining(String user, String toSearch);
+
 }
