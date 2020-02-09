@@ -23,9 +23,9 @@ public class AssistantServiceImpl implements AssistantService {
 	public MessageStore saveMessage(String user, Date createTime, String content) {
 		log.info("\nsave message：[{}, {}, {}, {}]", user, createTime, content);
 		ZoneId zoneId= ZoneId.of(Constant.ZONE_ID);
-		LocalDate sqlCreateDate = createTime.toInstant().atZone(zoneId).toLocalDate();
+		LocalDate sqlCreateDate = createTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 		LocalTime sqlCreateTime = createTime.toInstant().atZone(zoneId).toLocalTime();
-		log.info("\nsave message：[{}, {}, {}]", sqlCreateDate, sqlCreateTime);
+		log.info("\nsave message：[{}, {}]", sqlCreateDate, sqlCreateTime);
 		MessageStore messageStore = new MessageStore(user, sqlCreateDate, sqlCreateTime,content);
 		return assistantRepository.save(messageStore);
 	}
@@ -33,6 +33,7 @@ public class AssistantServiceImpl implements AssistantService {
 	@Override
 	public String findMessageByUser(String user) {
 		Iterable<MessageStore> messageStores = assistantRepository.findByUser(user);
+		log.info("database: {}", messageStores);
 		return formatSearchResult(messageStores);
 	}
 
