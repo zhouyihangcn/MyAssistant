@@ -26,6 +26,8 @@ import static me.chanjar.weixin.common.api.WxConsts.XmlMsgType;
 @Component
 public class MsgHandler extends AbstractHandler {
 	
+	private static final int CONTENT_LENGTH = 2500;
+	private static final String KEYWORK_SEARCH = "查找";
 	private final AssistantService assistantService;
 
     @Override
@@ -52,25 +54,46 @@ public class MsgHandler extends AbstractHandler {
 
         //TODO 组装回复消息
         //String content = "收到信息内容：" + JsonUtils.toJson(wxMessage);
-        String response = "";
-        if (StringUtils.startsWithAny(wxMessage.getContent(), "查找")) {
-    		log.info("search message..."+wxMessage.getContent() +";length:"+wxMessage.getContent().length());
-    		String trimContent = wxMessage.getContent().trim();
-    		int keyWordLen = "查找".length(); 
-    		int contentLen = trimContent.length();
-        	if (keyWordLen == contentLen) {
-            	response = searchMessage(wxMessage);
-        	} else {
-        		String toSearch = StringUtils.substring(wxMessage.getContent(), keyWordLen);
-        		response = searchMessageLike(wxMessage, toSearch);
-        	}
-        } else {
-        	response = saveMessage(wxMessage);
-        }
-        
+        String response = proceedMessage(wxMessage);
         return new TextBuilder().build(response, wxMessage, weixinService);
 
     }
+
+	private String proceedMessage(WxMpXmlMessage wxMessage) {
+		String response;
+        String content = determineContent(wxMessage);
+		if (content==null) { 
+			return "信息格式未支持。";
+		} else {
+	        String trimContent = content.trim();
+			if (StringUtils.startsWithAny(trimContent, KEYWORK_SEARCH)) {
+				log.info("search message..."+trimContent +";length:"+trimContent.length());
+				int keyWordLen = KEYWORK_SEARCH.length(); 
+				int contentLen = trimContent.length();
+				if (keyWordLen == contentLen) {
+					response = searchMessageAll(wxMessage);
+				} else {
+					String toSearch = StringUtils.substring(trimContent, keyWordLen);
+					response = searchMessageLike(wxMessage, toSearch);
+				}
+			} else {
+				response = saveMessage(wxMessage, content);
+			}
+        }
+        return response;
+	}
+
+	private String determineContent(WxMpXmlMessage wxMessage) {
+		String content;
+        if (WxConsts.XmlMsgType.TEXT.equals(wxMessage.getMsgType()))
+        	content = wxMessage.getContent();
+        else if (WxConsts.XmlMsgType.VOICE.equals(wxMessage.getMsgType())){
+        	content = wxMessage.getRecognition();
+        } else {
+        	return null;
+        }
+        return content;
+	}
 
 	private String searchMessageLike(WxMpXmlMessage wxMessage, String toSearch) {
 		log.info("search message like..."+toSearch);
@@ -78,21 +101,26 @@ public class MsgHandler extends AbstractHandler {
 		return "你要查找的信息：" + content;
 	}
 
-	private String searchMessage(WxMpXmlMessage wxMessage) {
+	private String searchMessageAll(WxMpXmlMessage wxMessage) {
 		log.info("search all message..."+wxMessage.getFromUser());
 		String content = assistantService.findMessageByUser(wxMessage.getFromUser());
 		return "你要查找的信息：" + content;
 	}
 
-	private String saveMessage(WxMpXmlMessage wxMessage) {
-		String content;
-        if (WxConsts.XmlMsgType.TEXT.equals(wxMessage.getMsgType()))
-        	content = wxMessage.getContent();
-        else {
-        	content = wxMessage.getRecognition();
-        }
+	private String saveMessage(WxMpXmlMessage wxMessage, String content) {
+//        if (WxConsts.XmlMsgType.TEXT.equals(wxMessage.getMsgType()))
+//        	content = wxMessage.getContent();
+//        else if (WxConsts.XmlMsgType.VOICE.equals(wxMessage.getMsgType())){
+//        	content = wxMessage.getRecognition();
+//        } else {
+//        	return "信息格式未支持。";
+//        }
 		log.info("save message..."+wxMessage.getFromUser()+","+content);
         Date createTime= new Date(wxMessage.getCreateTime()*1000L);
+
+        if (content.length()>CONTENT_LENGTH) {
+        	content=content.substring(0, CONTENT_LENGTH);
+        }
         assistantService.saveMessage(wxMessage.getFromUser(), createTime, content);
         return "信息已存储：" + content;
 	}
