@@ -25,6 +25,7 @@ public class AssistantServiceImpl implements AssistantService {
 		ZoneId zoneId= ZoneId.of(Constant.ZONE_ID);
 		LocalDate sqlCreateDate = createTime.toInstant().atZone(zoneId).toLocalDate();
 		LocalTime sqlCreateTime = createTime.toInstant().atZone(zoneId).toLocalTime();
+		log.info("\nsave message：[{}, {}, {}]", sqlCreateDate, sqlCreateTime);
 		MessageStore messageStore = new MessageStore(user, sqlCreateDate, sqlCreateTime,content);
 		return assistantRepository.save(messageStore);
 	}

@@ -98,7 +98,7 @@ public class MsgHandler extends AbstractHandler {
 	private String searchMessageLike(WxMpXmlMessage wxMessage, String toSearch) {
 		log.info("search message like..."+toSearch);
 		String content = assistantService.findMessageByUserAndContentContaining(wxMessage.getFromUser(), toSearch);
-		return "你要查找的信息：" + content;
+		return "你要查找【"+toSearch+"】的信息：" + content;
 	}
 
 	private String searchMessageAll(WxMpXmlMessage wxMessage) {
