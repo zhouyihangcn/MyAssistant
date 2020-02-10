@@ -3,6 +3,7 @@ package com.zyh.wx.mp.controller;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zyh.wx.assistant.entity.MessageStore;
 import com.zyh.wx.assistant.service.AssistantService;
+import com.zyh.wx.assistant.service.UserService;
 import com.zyh.wx.mp.utils.JsonUtils;
 
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -25,6 +27,7 @@ import me.chanjar.weixin.mp.config.WxMpConfigStorage;
 public class WxHealthController {
     private final WxMpService wxService;
 	private final AssistantService assistantService;
+	private final UserService userService;
 	
     @GetMapping("/info")
     public String info() {
@@ -60,4 +63,18 @@ public class WxHealthController {
         Date createTime= new Date();
         return assistantService.saveMessage(user, createTime, content);
     }
+
+    @GetMapping("/setting/get/{user}")
+    public ZoneOffset getSetting(@PathVariable String user) {
+		log.info("get request..." + user);
+        return userService.getZoneOffset(user);
+    }
+
+    @GetMapping("/setting/set/{user}/{content}")
+    public String setSetting(@PathVariable String user, @PathVariable String content) {
+		log.info("set request..." + user+";" +content);
+        Date createTime= new Date();		
+        return userService.setZoneOffset(user, content, createTime);
+    }
+
 }

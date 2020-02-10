@@ -51,12 +51,15 @@ public class LocationHandler extends AbstractHandler {
     }
     
 	private String proceedMessage(WxMpXmlMessage wxMessage) {
-		String content = "Name: "+ wxMessage.getLocationName()+
-						",Id: "+ wxMessage.getLocationId()+
-						",Laber: "+ wxMessage.getLabel()+
-						",纬度 : "+ wxMessage.getLatitude()+
-						",经度 :"+ wxMessage.getLongitude()+
-						",精度 :"+ String.valueOf(wxMessage.getPrecision());
+//		String content = "Name: "+ wxMessage.getLocationName()+	//null
+//						",Id: "+ wxMessage.getLocationId()+	//null
+//						",Laber: "+ wxMessage.getLabel()+
+//						",纬度 : "+ wxMessage.getLatitude()+ //null
+//						",经度 :"+ wxMessage.getLongitude()+ //null
+//						",精度 :"+ String.valueOf(wxMessage.getPrecision()); //null
+		String content = "Laber: "+ wxMessage.getLabel() +
+						",city:" + wxMessage.getCity()+
+						",country:" + wxMessage.getCountry() ;
 		return saveMessage(wxMessage, content);
 		
 	}

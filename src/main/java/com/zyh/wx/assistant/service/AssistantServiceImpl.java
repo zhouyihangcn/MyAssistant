@@ -2,12 +2,11 @@ package com.zyh.wx.assistant.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 import org.springframework.stereotype.Service;
 import com.zyh.wx.assistant.entity.MessageStore;
 import com.zyh.wx.assistant.repository.MessageStoreRepository;
-import com.zyh.wx.assistant.util.Constant;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,16 +17,26 @@ import lombok.extern.slf4j.Slf4j;
 public class AssistantServiceImpl implements AssistantService {
 	
 	private final MessageStoreRepository assistantRepository;
+	private final UserService userService;
 
 	@Override
 	public MessageStore saveMessage(String user, Date createTime, String content) {
 		log.info("\nsave message：[{}, {}, {}, {}]", user, createTime, content);
-		ZoneId zoneId= ZoneId.of(Constant.ZONE_ID);
-		LocalDate sqlCreateDate = createTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		LocalTime sqlCreateTime = createTime.toInstant().atZone(zoneId).toLocalTime();
-		log.info("\nsave message：[{}, {}]", sqlCreateDate, sqlCreateTime);
-		MessageStore messageStore = new MessageStore(user, sqlCreateDate, sqlCreateTime,content);
+//		ZoneId zoneId= ZoneId.of(Constant.ZONE_ID);
+//		LocalDate localCreateDate = createTime.toInstant().atZone(zoneId).toLocalDate();
+//		LocalTime localCreateTime = createTime.toInstant().atZone(zoneId).toLocalTime();
+		ZoneOffset zoneOffset = getZoneOffset(user);
+		LocalDate localCreateDate = createTime.toInstant().atOffset(zoneOffset).toLocalDate();
+		LocalTime localCreateTime = createTime.toInstant().atOffset(zoneOffset).toLocalTime();
+		String strCreateDate = localCreateDate.toString().substring(0,10);
+		String strCreateTime = localCreateTime.toString().substring(0,8);
+		log.info("\nsave message：[{}, {}]", localCreateDate, localCreateTime);
+		MessageStore messageStore = new MessageStore(user, strCreateDate, strCreateTime, createTime, content);
 		return assistantRepository.save(messageStore);
+	}
+
+	private ZoneOffset getZoneOffset(String user) {
+		return userService.getZoneOffset(user);
 	}
 
 	@Override
@@ -51,9 +60,9 @@ public class AssistantServiceImpl implements AssistantService {
 
 	private String formatSearchResult(Iterable<MessageStore> messageStores) {
 		String result="";
-		LocalDate createDatePrev = null;
+		String createDatePrev = null;
 		for (MessageStore m :messageStores) {
-			LocalDate createDateThis = m.getCreateDate();
+			String createDateThis = m.getCreateDate();
 			if (!createDateThis.equals(createDatePrev)) {
 				result=result+"\n日期【"+m.getCreateDate()+"】的记录：\n";
 				createDatePrev=createDateThis;
