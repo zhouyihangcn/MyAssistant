@@ -31,14 +31,13 @@ public class WxHandlerServiceImpl implements WxHandlerService {
 //						",纬度 : "+ wxMessage.getLatitude()+ //null
 //						",经度 :"+ wxMessage.getLongitude()+ //null
 //						",精度 :"+ String.valueOf(wxMessage.getPrecision()); //null
-		String content = "位置：Laber: "+ wxMessage.getLabel() +
-						",city:" + wxMessage.getCity()+
-						",country:" + wxMessage.getCountry() ;
-		return saveMessage(wxMessage, content);
+		String content = "位置："+ wxMessage.getLabel();
+		saveMessage(wxMessage, content);
+		return "地理位置已存储：" + content;
 		
 	}
 
-	private String saveMessage(WxMpXmlMessage wxMessage, String content) {
+	private void saveMessage(WxMpXmlMessage wxMessage, String content) {
 		log.info("save location message..." + wxMessage.getFromUser() + "," + content);
 		Date createTime = new Date(wxMessage.getCreateTime() * 1000L);
 		MessageLocation location = new MessageLocation();
@@ -48,7 +47,6 @@ public class WxHandlerServiceImpl implements WxHandlerService {
 		location.setDetails(content);
 		messageLocationRepository.save(location);
 		assistantService.saveMessage(wxMessage.getFromUser(), createTime, content);
-		return "地理位置已存储：" + content;
 	}
 
 }

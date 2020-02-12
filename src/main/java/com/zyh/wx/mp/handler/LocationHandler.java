@@ -28,10 +28,10 @@ public class LocationHandler extends AbstractHandler {
                                     WxSessionManager sessionManager) {
         if (wxMessage.getMsgType().equals(XmlMsgType.LOCATION)) {
             //TODO 接收处理用户发送的地理位置消息
-        	String content1 = wxHandlerService.proceedLocationMessage(wxMessage);
+        	String content = wxHandlerService.proceedLocationMessage(wxMessage);
             try {
-                String content = "感谢反馈，您的的地理位置已收到！" +JsonUtils.toJson(wxMessage);;
-                return new TextBuilder().build(content+content1, wxMessage, null);
+                //String content1 = "感谢反馈，您的的地理位置已收到！" +JsonUtils.toJson(wxMessage);;
+                return new TextBuilder().build(content, wxMessage, null);
             } catch (Exception e) {
                 this.logger.error("位置消息接收处理失败", e);
                 return null;
