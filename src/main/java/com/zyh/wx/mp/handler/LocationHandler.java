@@ -5,13 +5,10 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import org.springframework.stereotype.Component;
-
-import com.zyh.wx.assistant.service.AssistantService;
+import com.zyh.wx.assistant.service.WxHandlerService;
 import com.zyh.wx.mp.builder.TextBuilder;
-
+import com.zyh.wx.mp.utils.JsonUtils;
 import lombok.AllArgsConstructor;
-
-import java.util.Date;
 import java.util.Map;
 
 import static me.chanjar.weixin.common.api.WxConsts.XmlMsgType;
@@ -23,7 +20,7 @@ import static me.chanjar.weixin.common.api.WxConsts.XmlMsgType;
 @Component
 public class LocationHandler extends AbstractHandler {
 
-	private final AssistantService assistantService;
+	private final WxHandlerService wxHandlerService;
 	
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
@@ -31,10 +28,10 @@ public class LocationHandler extends AbstractHandler {
                                     WxSessionManager sessionManager) {
         if (wxMessage.getMsgType().equals(XmlMsgType.LOCATION)) {
             //TODO 接收处理用户发送的地理位置消息
-        	String content = proceedMessage(wxMessage);
+        	String content1 = wxHandlerService.proceedLocationMessage(wxMessage);
             try {
-                //String content = "感谢反馈，您的的地理位置已收到！";
-                return new TextBuilder().build(content, wxMessage, null);
+                String content = "感谢反馈，您的的地理位置已收到！" +JsonUtils.toJson(wxMessage);;
+                return new TextBuilder().build(content+content1, wxMessage, null);
             } catch (Exception e) {
                 this.logger.error("位置消息接收处理失败", e);
                 return null;
@@ -50,25 +47,4 @@ public class LocationHandler extends AbstractHandler {
         return null;
     }
     
-	private String proceedMessage(WxMpXmlMessage wxMessage) {
-//		String content = "Name: "+ wxMessage.getLocationName()+	//null
-//						",Id: "+ wxMessage.getLocationId()+	//null
-//						",Laber: "+ wxMessage.getLabel()+
-//						",纬度 : "+ wxMessage.getLatitude()+ //null
-//						",经度 :"+ wxMessage.getLongitude()+ //null
-//						",精度 :"+ String.valueOf(wxMessage.getPrecision()); //null
-		String content = "Laber: "+ wxMessage.getLabel() +
-						",city:" + wxMessage.getCity()+
-						",country:" + wxMessage.getCountry() ;
-		return saveMessage(wxMessage, content);
-		
-	}
-
-	private String saveMessage(WxMpXmlMessage wxMessage, String content) {
-	  this.logger.info("save location message..."+wxMessage.getFromUser()+","+content);
-      Date createTime= new Date(wxMessage.getCreateTime()*1000L);
-      assistantService.saveMessage(wxMessage.getFromUser(), createTime, content);
-      return "地理位置已存储：" + content;
-	}
-
 }
