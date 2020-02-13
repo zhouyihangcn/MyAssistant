@@ -5,7 +5,7 @@ import com.zyh.wx.assistant.entity.MessageStore;
 
 public interface MessageStoreRepository extends CrudRepository<MessageStore, Long> {
 
-	Iterable<MessageStore> findByUser(String user);
+	Iterable<MessageStore> findByUserOrderByIdDesc(String user);
 
-	Iterable<MessageStore> findByUserAndContentContaining(String user, String content);
+	Iterable<MessageStore> findByUserAndContentContainingOrderByIdDesc(String user, String content);
 }

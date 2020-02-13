@@ -22,7 +22,7 @@ public class MessageStore {
 	@Size(max = 8)
 	private String createTime;
 	private Date createDateTime;
-	@Size(max = 2500)
+	@Size(max = 1000)
 	private String content;
 
 	public MessageStore() {

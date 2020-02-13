@@ -56,7 +56,7 @@ public class WxHealthController {
         return assistantService.findMessageByUserAndContentContaining(user, content);
     }
 
-    @GetMapping("/message/post/{user}/{content}")
+    @GetMapping("/message/set/{user}/{content}")
     public MessageStore postMessage(@PathVariable String user, @PathVariable String content) {
 		log.info("post request..." + user+";" +content);
 //		String content = "test posting";

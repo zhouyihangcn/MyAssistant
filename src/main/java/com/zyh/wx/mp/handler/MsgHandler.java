@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.zyh.wx.assistant.service.AssistantService;
 import com.zyh.wx.assistant.service.UserService;
+import com.zyh.wx.assistant.util.Constant;
 
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.session.WxSessionManager;
@@ -28,7 +29,6 @@ import static me.chanjar.weixin.common.api.WxConsts.XmlMsgType;
 @Component
 public class MsgHandler extends AbstractHandler {
 	
-	private static final int CONTENT_LENGTH = 2500;
 	private static final String KEYWORK_SEARCH = "查找";
 	private static final String KEYWORK_SETZONE = "时区";
 	private static final String KEYWORK_HELP = "help";
@@ -142,18 +142,15 @@ public class MsgHandler extends AbstractHandler {
 		log.info("save message..."+wxMessage.getFromUser()+","+content);
         Date createTime= new Date(wxMessage.getCreateTime()*1000L);
 
-        if (content.length()>CONTENT_LENGTH) {
-        	content=content.substring(0, CONTENT_LENGTH);
-        }
         assistantService.saveMessage(wxMessage.getFromUser(), createTime, content);
         return "信息已存储：" + content;
 	}
 
 	private String helpContent() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("\n关键字【"+KEYWORK_SEARCH+"】:"+"如:"+KEYWORK_SEARCH+",或者"+KEYWORK_SEARCH+"你要找的内容");
-		builder.append("\n关键字【"+KEYWORK_SETZONE+"】:"+"如:"+KEYWORK_SETZONE+"5:00 / -6:30");
-		builder.append("\n其它字：系统保存，最长2500字节。");
+		builder.append("\n关键字【"+KEYWORK_SEARCH+"】:"+"如:【"+KEYWORK_SEARCH+"】,或者【"+KEYWORK_SEARCH+"位置】");
+		builder.append("\n关键字【"+KEYWORK_SETZONE+"】:"+"如:【"+KEYWORK_SETZONE+"-5:00】");
+		builder.append("\n其它字：系统保存，最长"+Constant.MAX_CONTNET_LENGTH_SAVE+"字节。");
 		return builder.toString();
 	}
 

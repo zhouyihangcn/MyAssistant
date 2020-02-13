@@ -7,6 +7,8 @@ import java.util.Date;
 import org.springframework.stereotype.Service;
 import com.zyh.wx.assistant.entity.MessageStore;
 import com.zyh.wx.assistant.repository.MessageStoreRepository;
+import com.zyh.wx.assistant.util.Constant;
+import com.zyh.wx.assistant.util.CustomStringUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +23,7 @@ public class AssistantServiceImpl implements AssistantService {
 
 	@Override
 	public MessageStore saveMessage(String user, Date createTime, String content) {
-		log.info("\nsave message：[{}, {}, {}, {}]", user, createTime, content);
+		log.info("\nsave message：[{}, {}, {}]", user, createTime, content);
 //		ZoneId zoneId= ZoneId.of(Constant.ZONE_ID);
 //		LocalDate localCreateDate = createTime.toInstant().atZone(zoneId).toLocalDate();
 //		LocalTime localCreateTime = createTime.toInstant().atZone(zoneId).toLocalTime();
@@ -30,7 +32,10 @@ public class AssistantServiceImpl implements AssistantService {
 		LocalTime localCreateTime = createTime.toInstant().atOffset(zoneOffset).toLocalTime();
 		String strCreateDate = localCreateDate.toString().substring(0,10);
 		String strCreateTime = localCreateTime.toString().substring(0,8);
-		log.info("\nsave message：[{}, {}]", localCreateDate, localCreateTime);
+        if (content.length()>Constant.MAX_CONTNET_LENGTH_SAVE) {
+        	content=content.substring(0, Constant.MAX_CONTNET_LENGTH_SAVE);
+    		log.info("\nmessage trancated first：[{}] bytes", Constant.MAX_CONTNET_LENGTH_SAVE);
+        }
 		MessageStore messageStore = new MessageStore(user, strCreateDate, strCreateTime, createTime, content);
 		return assistantRepository.save(messageStore);
 	}
@@ -41,7 +46,7 @@ public class AssistantServiceImpl implements AssistantService {
 
 	@Override
 	public String findMessageByUser(String user) {
-		Iterable<MessageStore> messageStores = assistantRepository.findByUser(user);
+		Iterable<MessageStore> messageStores = assistantRepository.findByUserOrderByIdDesc(user);
 		log.info("database: {}", messageStores);
 		return formatSearchResult(messageStores);
 	}
@@ -53,7 +58,7 @@ public class AssistantServiceImpl implements AssistantService {
 
 	@Override
 	public String findMessageByUserAndContentContaining(String user, String toSearch) {
-		Iterable<MessageStore> messageStores = assistantRepository.findByUserAndContentContaining(user, toSearch);
+		Iterable<MessageStore> messageStores = assistantRepository.findByUserAndContentContainingOrderByIdDesc(user, toSearch);
 		return formatSearchResult(messageStores);
 	}
 	
@@ -69,7 +74,14 @@ public class AssistantServiceImpl implements AssistantService {
 			}
 			result=result+"时间【"+m.getCreateTime()+"】内容【"+m.getContent()+"】;\n";
 		}
-		result=result+"。";
+		if (result.getBytes().length > Constant.MAX_CONTNET_LENGTH_WX_RESP) {
+			//result = result.substring(0,Constant.MAX_CONTNET_LENGTH_WX_RESP) +
+			result = CustomStringUtils.subStr(result, Constant.MAX_CONTNET_LENGTH_WX_RESP) +
+					"。。。内容太多。请关键字查找。";
+		} else {
+			result=result+"。";
+		}
+		
 		return result;
 	}
 
