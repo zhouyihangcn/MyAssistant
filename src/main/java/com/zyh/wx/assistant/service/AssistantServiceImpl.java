@@ -47,7 +47,7 @@ public class AssistantServiceImpl implements AssistantService {
 	@Override
 	public String findMessageByUser(String user) {
 		Iterable<MessageStore> messageStores = assistantRepository.findByUserOrderByIdDesc(user);
-		log.info("database: {}", messageStores);
+		//log.info("database: {}", messageStores);
 		return formatSearchResult(messageStores);
 	}
 
@@ -73,16 +73,13 @@ public class AssistantServiceImpl implements AssistantService {
 				createDatePrev=createDateThis;
 			}
 			result=result+"时间【"+m.getCreateTime()+"】内容【"+m.getContent()+"】;\n";
-		}
-		if (result.getBytes().length > Constant.MAX_CONTNET_LENGTH_WX_RESP) {
-			//result = result.substring(0,Constant.MAX_CONTNET_LENGTH_WX_RESP) +
-			result = CustomStringUtils.subStr(result, Constant.MAX_CONTNET_LENGTH_WX_RESP) +
-					"。。。内容太多。请关键字查找。";
-		} else {
-			result=result+"。";
-		}
-		
-		return result;
+			if (result.getBytes().length > Constant.MAX_CONTNET_LENGTH_WX_RESP) {
+				//result = result.substring(0,Constant.MAX_CONTNET_LENGTH_WX_RESP) +
+				return CustomStringUtils.subStr(result, Constant.MAX_CONTNET_LENGTH_WX_RESP) +
+						"。。。内容太多。请关键字查找。";
+			}
+		} 
+		return result+"。";
 	}
 
 }

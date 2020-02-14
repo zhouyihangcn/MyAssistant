@@ -5,5 +5,5 @@ public class Constant {
 	public static final int DEFAULT_OFFSET_HOURS = 8;
 	public static final int DEFAULT_OFFSET_MINUTES = 0;
 	public static final int MAX_CONTNET_LENGTH_SAVE = 1000;
-	public static final int MAX_CONTNET_LENGTH_WX_RESP = 2000;
+	public static final int MAX_CONTNET_LENGTH_WX_RESP = 1950;
 }
