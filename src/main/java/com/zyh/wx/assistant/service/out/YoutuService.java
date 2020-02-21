@@ -34,7 +34,7 @@ public class YoutuService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return "";
+		return "扫描图片出错。";
 	}
 
 	/**
@@ -56,7 +56,7 @@ public class YoutuService {
 		for (YoutuResponseItem a:resultObj.getItems()) {
 			wordResult=wordResult+a.getItemstring();
 		}
-//		System.out.println(wordResult);
+		System.out.println(wordResult);
 		return wordResult;
 	}
 }
