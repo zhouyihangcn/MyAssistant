@@ -10,5 +10,3 @@ wx:
         secret: ${OPENSHIFT_WECHAT_SECRET}
         token: ${OPENSHIFT_WECHAT_TOKEN}
         aesKey: ${OPENSHIFT_WECHAT_AESKEY}
-
-        

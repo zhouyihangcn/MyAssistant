@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zyh.wx.assistant.entity.MessageStore;
 import com.zyh.wx.assistant.service.AssistantService;
 import com.zyh.wx.assistant.service.UserService;
+import com.zyh.wx.assistant.service.out.YoutuService;
 import com.zyh.wx.mp.utils.JsonUtils;
 
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -28,6 +29,7 @@ public class WxHealthController {
     private final WxMpService wxService;
 	private final AssistantService assistantService;
 	private final UserService userService;
+	private final YoutuService youtuService;
 	
     @GetMapping("/info")
     public String info() {
@@ -77,4 +79,10 @@ public class WxHealthController {
         return userService.setZoneOffset(user, content, createTime);
     }
 
+    @GetMapping("/youtu/get")
+    public String testYoutu() {
+		log.info("test Youtu ...");
+        String picUrl="https://n.sinaimg.cn/mil/transform/330/w198h132/20200214/058f-ipmxpvz7868495.png";
+		return youtuService.getWordFromPicture(picUrl);
+    }
 }

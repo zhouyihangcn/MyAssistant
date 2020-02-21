@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import com.zyh.wx.assistant.util.Constant;
 import com.zyh.wx.mp.builder.TextBuilder;
 
 import me.chanjar.weixin.common.error.WxErrorException;
@@ -52,7 +53,7 @@ public class SubscribeHandler extends AbstractHandler {
         }
 
         try {
-            return new TextBuilder().build("感谢关注", wxMessage, weixinService);
+            return new TextBuilder().build("感谢关注\n"+Constant.helpContent(), wxMessage, weixinService);
         } catch (Exception e) {
             this.logger.error(e.getMessage(), e);
         }

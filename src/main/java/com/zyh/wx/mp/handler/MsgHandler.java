@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.zyh.wx.assistant.service.AssistantService;
 import com.zyh.wx.assistant.service.UserService;
+import com.zyh.wx.assistant.service.out.YoutuService;
 import com.zyh.wx.assistant.util.Constant;
 
 import me.chanjar.weixin.common.api.WxConsts;
@@ -29,12 +30,9 @@ import static me.chanjar.weixin.common.api.WxConsts.XmlMsgType;
 @Component
 public class MsgHandler extends AbstractHandler {
 	
-	private static final String KEYWORK_SEARCH = "查找";
-	private static final String KEYWORK_SETZONE = "时区";
-	private static final String KEYWORK_HELP = "help";
-	private static final String KEYWORK_HELP_CHINESE = "帮助";
 	private final AssistantService assistantService;
 	private final UserService userService;
+	private final YoutuService youtuService;
 
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
@@ -66,18 +64,21 @@ public class MsgHandler extends AbstractHandler {
     }
 
 	private String proceedMessage(WxMpXmlMessage wxMessage) {
+		if (WxConsts.XmlMsgType.IMAGE.equals(wxMessage.getMsgType())) {
+        	return youtuService.getWordFromPicture(wxMessage.getPicUrl());
+		}
 		String response;
 		String content = determineContent(wxMessage);
 		if (content == null) {
 			return "信息格式未支持。";
 		}
 		String trimContent = content.trim();
-		if (StringUtils.startsWithIgnoreCase(trimContent, KEYWORK_HELP) || 
-				StringUtils.startsWithAny(trimContent, KEYWORK_HELP_CHINESE)) {
+		if (StringUtils.startsWithIgnoreCase(trimContent, Constant.KEYWORK_HELP) || 
+				StringUtils.startsWithAny(trimContent, Constant.KEYWORK_HELP_CHINESE)) {
 			return helpContent();
 		}
-		if (StringUtils.startsWithIgnoreCase(trimContent, KEYWORK_SETZONE)) {
-			int keyWordLen = KEYWORK_SETZONE.length();
+		if (StringUtils.startsWithIgnoreCase(trimContent, Constant.KEYWORK_SETZONE)) {
+			int keyWordLen = Constant.KEYWORK_SETZONE.length();
 			int contentLen = trimContent.length();
 			if (keyWordLen == contentLen) {
 				return "输入为空。";
@@ -86,15 +87,19 @@ public class MsgHandler extends AbstractHandler {
 			return userSetting(wxMessage, setting);
 		}
 		
-		if (StringUtils.startsWithAny(trimContent, KEYWORK_SEARCH)) {
+		if (StringUtils.startsWithAny(trimContent, Constant.KEYWORK_SEARCH)) {
 			log.info("search message..." + trimContent + ";length:" + trimContent.length());
-			int keyWordLen = KEYWORK_SEARCH.length();
+			int keyWordLen = Constant.KEYWORK_SEARCH.length();
 			int contentLen = trimContent.length();
 			if (keyWordLen == contentLen) {
 				response = searchMessageAll(wxMessage);
 			} else {
 				String toSearch = StringUtils.substring(trimContent, keyWordLen);
-				response = searchMessageLike(wxMessage, toSearch);
+				if("".equals(toSearch.trim()) || "。".equals(toSearch.trim()) || ".".equals(toSearch.trim())) {
+					response = searchMessageAll(wxMessage);
+				} else {
+					response = searchMessageLike(wxMessage, toSearch);
+				}
 			}
 		} else {
 			response = saveMessage(wxMessage, content);
@@ -147,11 +152,7 @@ public class MsgHandler extends AbstractHandler {
 	}
 
 	private String helpContent() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("\n关键字【"+KEYWORK_SEARCH+"】:"+"如:【"+KEYWORK_SEARCH+"】,或者【"+KEYWORK_SEARCH+"位置】");
-		builder.append("\n关键字【"+KEYWORK_SETZONE+"】:"+"如:【"+KEYWORK_SETZONE+"-5:00】");
-		builder.append("\n其它字：系统保存，最长"+Constant.MAX_CONTNET_LENGTH_SAVE+"字节。");
-		return builder.toString();
+		return Constant.helpContent();
 	}
 
 
